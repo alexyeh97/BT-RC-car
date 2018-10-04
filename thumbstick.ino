@@ -10,53 +10,33 @@
 //  Arduino analog pin A1 to Y pin of thumbstick
 //  Arduino digital pin 2 to SW pin of thumbstick
 //  Connect GND from the Arduino to GND on the thumbstick
-
-
-
 #define BAUDRATE 9600
-
-#define thumbstick_x A0
-#define thumbstick_y A1
+ 
+#define thumbstickA_x A0
+#define thumbstickA_y A1
+#define thumbstickB_x A2
+#define thumbstickB_y A3
 #define thumbstick_sw 2
-
 int raw_analog_reading;
 int switch_state;
  
 void setup() {
-
   // Start Serial Monitor for feedback
   Serial.begin(BAUDRATE);
-
-  // Configure with internal pull-up resistor
-  //  so we do not need a physical pull-down resistor
-  pinMode(thumbstick_sw, INPUT_PULLUP);
 }
-
-// Continuously print the X and Y analog readings 
-//  and the state of the push-button of the thumbstick
+// Continuously print the X reading of thumbstickA
+// and the Y reading of thumbstickB
 void loop() { 
-  Serial.print("(X,Y,isPressed)=");
-
+  Serial.print("(thumbstickA_Y, thumbstickB_X)=");
   Serial.print("(");
-
-  // Read + print thumbstick X
-  raw_analog_reading = analogRead(thumbstick_x);
+  // Read + print thumbstickA Y
+  raw_analog_reading = analogRead(thumbstickA_y);
   Serial.print(raw_analog_reading);
-
   Serial.print(",");
-
-  // Read + print thumbstick Y
-  raw_analog_reading = analogRead(thumbstick_y);
+  // Read + print thumbstickB X
+  raw_analog_reading = analogRead(thumbstickB_x);
   Serial.print(raw_analog_reading);
-
-  Serial.print(",");
-
-  // Read + print thumbstick switch state
-  //  Note: We invert the reading because of the internal pullup resistor
-  switch_state = !digitalRead(thumbstick_sw);
-  Serial.print(switch_state);
-
   Serial.println(")");
-
   delay(10);
 }
+
