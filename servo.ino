@@ -8,6 +8,7 @@
 //  Arduino 5V to VCC (red wire) of servo
 //  Arduino digital PWM pin 9 to SIG (orange or white wire) of servo
 //  Connect GND from the Arduino to GND (black wire) of the servo
+// Arduino A0 connected to Y of thumbstickA
 
 
 
@@ -17,6 +18,14 @@
 #define BAUDRATE 9600
 
 #define servo_pin 5
+
+#define thumbstick_pin A0 
+int thumbstick_neutral=337;
+int thumbstick_min=0;
+int thumbstick_max=675;
+int thumbstick_pos;
+int servo_pos;
+
 
 Servo servo;
 
@@ -30,22 +39,18 @@ void setup() {
 }
 
 void loop() { 
+  //read thumbstick position, map thumbstick position to servo position
+  //write position to servo
+  //print both to serial
+  thumbstick_pos = analogRead(thumbstick_pin);
+  servo_pos = thumbstick_pos/3.75;
+  servo.write(servo_pos);
 
-  // Sweep from 0 to 180 degrees
-  for(int i = 0; i <= 180; i++) {
-    Serial.print("position=");
-    servo.write(i);
-    Serial.println(i);
-    delay(5);
-  }
-  delay(500);
+  Serial.print("(thumbstick,servo)=(");
+  Serial.print(thumbstick_pos);
+  Serial.print(",");
+  Serial.print(servo_pos);
+  Serial.println(")");
 
-  // Sweep from 180 to 0 degrees
-  for(int i=180; i >= 0; i--) {
-    Serial.print("position=");
-    servo.write(i);
-    Serial.println(i);
-    delay(5); 
-  }
-  delay(500);
+  delay(10);
 }
