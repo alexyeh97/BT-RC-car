@@ -1,90 +1,79 @@
-// Program to test the motor driver circuitry
-//
-// Prints the phase (direction) and enable (speed) of the motor driver
-//  Ramps up to max speed, then slows down, in one direction
-//  Ramps up to max speed, then slows down, in opposite direction
-
-
+#include <Servo.h>
 #define BAUDRATE 9600
 
 // Motor Driver variables
-#define enable 9
-#define phase 6
+#define enable 6
+#define phase 5
 #define FORWARD HIGH
 #define BACKWARD LOW
-#define THROTTLE_MIN 0
-#define THROTTLE_MAX 255
+
+//Challenge: Motor Drive with thumbstick
+//Challenge2: + servo with steering thumbstick
+//Arduino A2 connected to X of throttle
+//establish neutral zone to be 336 +/- 10
+#define throttle_pin A2
+#define servo_pin 9
+#define steering_pin A0 
+int steering_neutral=337;
+int steering_min=0;
+int steering_max=675;
+int steering_pos;
+int servo_pos=90;
+
+int throttle_neutral = 337;
+int throttle_min = 0;
+int throttle_max = 700;
+int throttle_pos;
+int throttle_forward = 367;
+int throttle_reverse = 307;
+int motor;
+
+Servo servo;
 
 void setup() {
   // Start Serial Monitor for feedback
   Serial.begin(BAUDRATE);
 
   // Set phase (digital) pin as an output
-  pinMode(phase,OUTPUT);
+  pinMode(phase, OUTPUT);
 
   // Set initial condition for motor driver
-  digitalWrite(phase,FORWARD);
-  analogWrite(enable,0);
+  digitalWrite(phase, FORWARD);
+  analogWrite(enable, 0);
+
+  // Attach servo pin to Servo object  
+  servo.attach(servo_pin);
 }
 
 void loop() {
-  // Sweep motor at phase = FORWARD,
-  //  and motor speed at enable steps 0 to 255
-  //  speed up 
-  digitalWrite(phase,FORWARD);
-  for(int i = THROTTLE_MIN; i <= THROTTLE_MAX; i++) {
-    analogWrite(enable,i);      
-    Serial.print("(phase,enable)=(");
-    Serial.print(FORWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
+  throttle_pos = analogRead(throttle_pin);
+
+  if (throttle_pos >= throttle_forward) {
+    digitalWrite(phase, FORWARD);
+    motor = map(throttle_pos, throttle_forward, throttle_max, 0, 255);
+    analogWrite(enable, motor);
   }
-  delay(500);
 
-  // Sweep motor at phase = FORWARD,
-  //  and motor speed at enable steps 255 to 0
-  //  slow down
-  for(int i = THROTTLE_MAX; i >= THROTTLE_MIN; i--) {
-    analogWrite(enable,i);        
-    Serial.print("(phase,enable)=(");
-    Serial.print(FORWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
+  else if (throttle_pos <= throttle_reverse) {
+    digitalWrite(phase, BACKWARD);
+    motor = map(throttle_pos, throttle_reverse, throttle_min, 0, 255);
+    analogWrite(enable, motor);
   }
-  delay(500);
 
-
-
-  // Sweep motor at phase = BACKWARD,
-  //  and motor speed at enable steps 0 to 255
-  //  speed up 
-  digitalWrite(phase,BACKWARD);
-  for(int i = THROTTLE_MIN; i <= THROTTLE_MAX; i++) {
-    analogWrite(enable,i);       
-    Serial.print("(phase,enable)=(");
-    Serial.print(BACKWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
+else {
+  //if (throttle_pos <= throttle_forward && throttle_pos >= throttle_reverse) {
+    motor = 0;
+    analogWrite(enable,motor);
   }
-  delay(500);
 
-  // Sweep motor at phase = BACKWARD,
-  //  and motor speed at enable steps 255 to 0
-  //  slow down
-  for(int i = THROTTLE_MAX; i >= THROTTLE_MIN; i--) {
-    analogWrite(enable,i);  
-    Serial.print("(phase,enable)=(");
-    Serial.print(BACKWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
-  }
-  delay(500);
-}
+ steering_pos = analogRead(steering_pin);
+ servo_pos = steering_pos/3.75;
+ servo.write(servo_pos);
+
+  Serial.print("(throttle_pos)=");
+  Serial.print(throttle_pos); 
+  Serial.print("   motor=");
+  Serial.println(motor);
+
+  delay(10);
+   }
