@@ -1,5 +1,12 @@
 //Reads sensor data and transmits them to receiver
 // Library to make a Software UART
+//HM-10 module A (master)
+//Name: REMOTE
+//MAC Addr.: 341513E6475C
+//
+//HM-10 module B (slave)
+//Name: VEHICLE
+//MAC Addr.: D43639DEAFAD
 #include <SoftwareSerial.h>
 
 #define TX 2

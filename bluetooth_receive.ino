@@ -1,5 +1,12 @@
 // Receive sensor data from transmitter and map them to motor and servo
 // Library to make a Software UART
+//HM-10 module A (master)
+//Name: REMOTE
+//MAC Addr.: 341513E6475C
+//
+//HM-10 module B (slave)
+//Name: VEHICLE
+//MAC Addr.: D43639DEAFAD
 #include <SoftwareSerial.h>
 #include <Servo.h>
 
@@ -12,8 +19,8 @@
 #define FORWARD HIGH
 #define BACKWARD LOW
 #define servo_pin 9
-  int throttle_pos;
-  int steering_pos;
+int throttle_pos;
+int steering_pos;
 int servo_pos=90;
 int throttle_min = 0;
 int throttle_neutral = 337;
@@ -21,7 +28,6 @@ int throttle_max = 700;
 int throttle_forward = 367;
 int throttle_reverse = 307;
 int motor;
-
 
 #define BAUDRATE 9600
  
@@ -80,16 +86,17 @@ void bluetooth_receive() {
     analogWrite(enable, motor);
   }
 
-else {
+  else {
     motor = 0;
     analogWrite(enable,motor);
   }
   
- servo_pos = steering_pos/3.75;
- servo.write(servo_pos); 
+  servo_pos = steering_pos/3.75;
+  servo.write(servo_pos); 
     
     // Print packet (debug)
     print_packet();
+  delay(10);
   }   
 }
 
@@ -100,6 +107,5 @@ void print_packet() {
   Serial.print(pkt.steering_pos); Serial.print(",");
   Serial.print(motor); Serial.print(",");
   Serial.print(servo_pos); Serial.print(",");
-  Serial.println(")");
   Serial.println(")");
 }
