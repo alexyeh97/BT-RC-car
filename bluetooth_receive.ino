@@ -77,15 +77,15 @@ void bluetooth_receive() {
       #endif
 
   //Map sensor data to motor and servo
-    if (throttle_pos >= throttle_forward) {
+    if (pkt.throttle_pos >= throttle_forward) {
     digitalWrite(phase, FORWARD);
-    motor = map(throttle_pos, throttle_forward, throttle_max, 0, 255);
+    motor = map(pkt.throttle_pos, throttle_forward, throttle_max, 0, 255);
     analogWrite(enable, motor);
   }
 
-  else if (throttle_pos <= throttle_reverse) {
+  else if (pkt.throttle_pos <= throttle_reverse) {
     digitalWrite(phase, BACKWARD);
-    motor = map(throttle_pos, throttle_reverse, throttle_min, 0, 255);
+    motor = map(pkt.throttle_pos, throttle_reverse, throttle_min, 0, 255);
     analogWrite(enable, motor);
   }
 
@@ -94,7 +94,7 @@ void bluetooth_receive() {
     analogWrite(enable,motor);
   }
   
-  servo_pos = steering_pos/3.75;
+  servo_pos = pkt.steering_pos/3.75;
   servo.write(servo_pos); 
     
     // Print packet (debug)
