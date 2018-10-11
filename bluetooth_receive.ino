@@ -12,6 +12,7 @@
 
 #define RX 3
 #define TX 2
+#define DEBUG 0
 
 // Motor Driver and Servo variables
 #define enable 6
@@ -37,6 +38,7 @@ SoftwareSerial BTSerial(RX, TX); // (RX, TX)
 struct Packet {
   int throttle_pos;
   int steering_pos;
+  int checksum;
 } pkt; // Instantiate a Packet struct
 
 Servo servo; 
@@ -60,10 +62,6 @@ void setup() {
 void loop() {
   // Receive data from the bluetooth
   bluetooth_receive();  
-
-  // Necessary forced delay, if we receive too fast (no delay)
-  //  the error rate increases
-  delay(1);
 }
 
 // Function responsible for receiving data over bluetooth
@@ -72,6 +70,11 @@ void bluetooth_receive() {
   if(BTSerial.available() >= sizeof(Packet)) {
     // Read in the appropriate number of bytes to fit our Packet
     BTSerial.readBytes((byte *) & pkt,sizeof(Packet));
+  if(pkt.checksum == (pkt.steering_pos ^ pkt.throttle_pos)) {
+      #if DEBUG == 1
+        // Print packet (debug)
+        print_packet();
+      #endif
 
   //Map sensor data to motor and servo
     if (throttle_pos >= throttle_forward) {
@@ -97,7 +100,17 @@ void bluetooth_receive() {
     // Print packet (debug)
     print_packet();
   delay(10);
-  }   
+  }
+  else {
+    #if DEBUG == 1
+      Serial.println("CHECKSUM INVALID");
+    #endif
+    // Flush serial buffer (observed decreased error rate)
+      while(BTSerial.available() > 0)
+      BTSerial.read();
+  }
+  }
+  delay(5);   
 }
 
 // Function to print packet data and motor/servo (debug)

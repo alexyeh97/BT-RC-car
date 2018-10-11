@@ -23,6 +23,7 @@ SoftwareSerial BTSerial(RX, TX); // (RX, TX)
 struct Packet {
   int throttle_pos;
   int steering_pos;
+  int checksum;
 } pkt; // Instantiate a Packet struct
  
 void setup() {
@@ -39,16 +40,16 @@ void loop() {
 
   // Necessary forced delay, if we transmit too fast (no delay)
   //  the error rate increases
-  delay(1);
+  delay(5);
 }
 
 // Function responsible for reading senors and 
-// transmitting data over bluetooth
+// transmitting data over bluetooth and checksum
 void bluetooth_transmit() {
   // Update data to be transmitted
   pkt.throttle_pos = analogRead(throttle_pin);
   pkt.steering_pos = analogRead(steering_pin);
-  
+  pkt.checksum = pkt.steering_pos ^ pkt.throttle_pos;
   // Write packet data to the bluetooth - and transmit
   BTSerial.write((byte *) & pkt,sizeof(Packet));
 
